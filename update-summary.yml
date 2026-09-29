@@ -1,0 +1,39 @@
+name: Update market summary
+
+on:
+  schedule:
+    # Every 15 minutes, 13:00-21:59 UTC, Mon-Fri.
+    # Covers 9:45am/12:30pm/4:15pm America/New_York in both EDT and EST.
+    # generate-summary.js only acts once per slot per day; other runs are no-ops.
+    - cron: "*/15 13-21 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate summary
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: node scripts/generate-summary.js
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet -- data/summary.json; then
+            git add data/summary.json
+            git commit -m "Update market summary"
+            git push
+          else
+            echo "No changes to commit."
+          fi

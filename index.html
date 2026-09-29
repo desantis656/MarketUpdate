@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Market Update Widget Preview</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 16px; }
+</style>
+</head>
+<body>
+  <h1>Market Update — Widget Preview</h1>
+  <p>This page previews the embed exactly as it will appear on your Squarespace/Wix site.</p>
+  <hr />
+  <!-- Copy everything between START/END into your site's Code Block -->
+  <!-- START EMBED -->
+  <div id="market-update-widget"></div>
+  <script>
+    (function () {
+      // Replace with your published GitHub Pages URL once the repo is live, e.g.:
+      // "https://YOUR_USERNAME.github.io/YOUR_REPO/data/summary.json"
+      var DATA_URL = "./data/summary.json";
+
+      var container = document.getElementById("market-update-widget");
+
+      function render(data) {
+        var updated = data.generatedAt
+          ? new Date(data.generatedAt).toLocaleString("en-US", { timeZone: "America/New_York" }) + " ET"
+          : "—";
+        var quotesHtml = (data.quotes || [])
+          .map(function (q) {
+            return "<li><strong>" + q.name + "</strong>: " + q.close + "</li>";
+          })
+          .join("");
+        container.innerHTML =
+          '<div style="font-family: system-ui, sans-serif; border: 1px solid #ddd; border-radius: 8px; padding: 16px;">' +
+          '<div style="font-size: 12px; text-transform: uppercase; color: #888; letter-spacing: .05em;">' +
+          (data.slotLabel || "Market Update") +
+          "</div>" +
+          '<p style="margin: 8px 0;">' + data.summary + "</p>" +
+          (quotesHtml ? '<ul style="margin: 8px 0; padding-left: 18px;">' + quotesHtml + "</ul>" : "") +
+          '<div style="font-size: 11px; color: #999;">Last updated: ' + updated + "</div>" +
+          "</div>";
+      }
+
+      fetch(DATA_URL, { cache: "no-store" })
+        .then(function (res) { return res.json(); })
+        .then(render)
+        .catch(function () {
+          container.textContent = "Market update is temporarily unavailable.";
+        });
+    })();
+  </script>
+  <!-- END EMBED -->
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!--
+  Paste this whole block into a Squarespace "Code Block" (Embed Block on Wix) wherever you
+  want the market update to appear. Before pasting, replace DATA_URL below with your live
+  GitHub Pages URL, e.g.:
+    https://YOUR_USERNAME.github.io/YOUR_REPO/data/summary.json
+-->
+<div id="market-update-widget"></div>
+<script>
+  (function () {
+    var DATA_URL = "https://YOUR_USERNAME.github.io/YOUR_REPO/data/summary.json";
+    var container = document.getElementById("market-update-widget");
+
+    function render(data) {
+      var updated = data.generatedAt
+        ? new Date(data.generatedAt).toLocaleString("en-US", { timeZone: "America/New_York" }) + " ET"
+        : "—";
+      var quotesHtml = (data.quotes || [])
+        .map(function (q) {
+          return "<li><strong>" + q.name + "</strong>: " + q.close + "</li>";
+        })
+        .join("");
+      container.innerHTML =
+        '<div style="font-family: system-ui, sans-serif; border: 1px solid #ddd; border-radius: 8px; padding: 16px;">' +
+        '<div style="font-size: 12px; text-transform: uppercase; color: #888; letter-spacing: .05em;">' +
+        (data.slotLabel || "Market Update") +
+        "</div>" +
+        '<p style="margin: 8px 0;">' + data.summary + "</p>" +
+        (quotesHtml ? '<ul style="margin: 8px 0; padding-left: 18px;">' + quotesHtml + "</ul>" : "") +
+        '<div style="font-size: 11px; color: #999;">Last updated: ' + updated + "</div>" +
+        "</div>";
+    }
+
+    fetch(DATA_URL, { cache: "no-store" })
+      .then(function (res) { return res.json(); })
+      .then(render)
+      .catch(function () {
+        container.textContent = "Market update is temporarily unavailable.";
+      });
+  })();
+</script>
